@@ -74,9 +74,25 @@ public class RedBlackTreePrint {
         }
     }
 
-    public static <K extends Comparable<K>> void print(RedBlackTree<K> tree, String... args) {
+    public static <K> int size(RedBlackTree.Node<K> node) {
+        if (node == null) {
+            return 0;
+        }
+
+        int s = 1;
+        if (node.left != null) {
+            s += size(node.left);
+        }
+        if (node.right != null) {
+            s += size(node.right);
+        }
+        return s;
+    }
+
+    public static <K extends Comparable<K>> void print(RedBlackTree<K> tree, String... description) {
         Map<Integer, List<NodeInfo>> maps = new HashMap<>();
-        final int initOffset = 90;
+        int size = size(tree.root);
+        final int initOffset = size * 5;
         traversal(0, initOffset, true, tree.root, null, maps);
         maps.forEach((key, list) -> {
             int position = 0;
@@ -110,8 +126,8 @@ public class RedBlackTreePrint {
             System.out.println();
         });
 
-        System.out.println(String.join(" ", args));
-        for (int i = 0; i < 200; i++) {
+        System.out.println(String.join(" ", description));
+        for (int i = 0; i < initOffset * 2; i++) {
             System.out.print('.');
         }
         System.out.println("\n");
