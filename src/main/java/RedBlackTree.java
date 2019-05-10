@@ -349,7 +349,8 @@ public class RedBlackTree<K extends Comparable<? super K>> {
                         rotateRight(sib);                                              // 情形 3. 兄弟节点右旋
                         sib = rightOf(parentOf(x));                                    // 情形 3. 原来的红色左侄变黑色兄弟节点，转为情形 4
                     }                                                                  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    setColor(sib, colorOf(parentOf(x)));                               // 情形 4. 这里兄弟右子肯定为红色，可能是情形 3 转变而来，也可能兄弟右子原来就是红的，此时将原来父节点的颜色设置给兄弟节点
+                    setColor(sib, colorOf(parentOf(x)));                               // 情形 4. 这里兄弟右子肯定为红色，可能是情形 3 转变而来，也可能兄弟右子原来就是红的
+                    //                                                                 // 情形 4. 此时将原来父节点的颜色设置给兄弟节点，这样就不会改变原来的路径上的黑色节点数量
                     setColor(parentOf(x), BLACK);                                      // 情形 4. 父节点置黑
                     setColor(rightOf(sib), BLACK);                                     // 情形 4. 兄弟节点右子置黑
                     rotateLeft(parentOf(x));                                           // 情形 4. 父节点左旋
