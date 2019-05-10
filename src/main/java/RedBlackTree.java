@@ -343,13 +343,13 @@ public class RedBlackTree<K extends Comparable<? super K>> {
                     x = parentOf(x);                                                   // 情形 2.1 如果原来是红父，退出循环并置黑
                     //                                                                 // 情形 2.2 如果是黑父，则父节点作为新的标记删除节点，不做实际删除，继续下一轮红黑树修复循环
                 } else {                                                               //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    if (colorOf(leftOf(sib)) == RED) {                                 // 情形 3. 黑兄并且其左子为红，需要额外换色旋转，这里黑兄红左子的操作比较复杂
+                    if (colorOf(leftOf(sib)) == RED) {                                 // 情形 3. 黑兄并且其左子为红，需要额外换色旋转，以达到右子为红的结果
                         setColor(leftOf(sib), BLACK);                                  // 情形 3. 黑兄和其红左子交换颜色，左子置黑，红色上溢
                         setColor(sib, RED);                                            // 情形 3. 兄弟节点置黑
                         rotateRight(sib);                                              // 情形 3. 兄弟节点右旋
                         sib = rightOf(parentOf(x));                                    // 情形 3. 原来的红色左侄变黑色兄弟节点，转为情形 4
                     }                                                                  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    setColor(sib, colorOf(parentOf(x)));                               // 情形 4. 将原来父节点的颜色设置给兄弟节点
+                    setColor(sib, colorOf(parentOf(x)));                               // 情形 4. 这里兄弟右子肯定为红色，可能是情形 3 转变而来，也可能兄弟右子原来就是红的，此时将原来父节点的颜色设置给兄弟节点
                     setColor(parentOf(x), BLACK);                                      // 情形 4. 父节点置黑
                     setColor(rightOf(sib), BLACK);                                     // 情形 4. 兄弟节点右子置黑
                     rotateLeft(parentOf(x));                                           // 情形 4. 父节点左旋
