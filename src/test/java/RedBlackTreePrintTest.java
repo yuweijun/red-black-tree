@@ -11,12 +11,12 @@ public class RedBlackTreePrintTest {
 
         IntStream.of(data).forEach(i -> {
             tree.insert(i);
-            RedBlackTreePrint.print(tree, "insert " + i + " finished.");
+            new RedBlackTreePrint().print(tree, "insert " + i + " finished.");
         });
 
         IntStream.of(data).forEach(i -> {
             tree.remove(i);
-            RedBlackTreePrint.print(tree, "delete " + i + " finished.");
+            new RedBlackTreePrint().print(tree, "delete " + i + " finished.");
         });
     }
 

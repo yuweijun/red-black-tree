@@ -1,5 +1,5 @@
 /**
- * 代码根据 @link java.util.TreeMap} 的红黑树实现稍做调整
+ * 代码根据 {@link java.util.TreeMap} 的红黑树实现稍做调整
  *
  * @author yu 2019-05-04.
  */
@@ -205,12 +205,13 @@ public class RedBlackTree<K extends Comparable<? super K>> {
     /**
      * From CLR
      *
-     * insert 节点主要与叔叔节点比较，红黑树的所有插入情形分为以下几种：
+     * insert 节点主要与叔叔节点比较，红黑树的所有插入情形分为以下 5 种：
      * <pre>
      * 无父节点，新节点为树的根节点
      * 黑父节点
      * 红父红叔
-     * 红父黑叔
+     * 红父黑叔红右子
+     * 红父黑叔红左子
      * </pre>
      */
     private void fixAfterInsertion(Node<K> x) {
@@ -232,8 +233,8 @@ public class RedBlackTree<K extends Comparable<? super K>> {
                         x = parentOf(x);                          // 情形 2. 标记父节点为新节点
                         rotateLeft(x);                            // 情形 2. 将父节点左旋，转化为下面情形 3
                     }                                             //////////////////////////////////////////////////////
-                    setColor(parentOf(x), BLACK);                 // 情形 3. 交换祖父节点和父节点颜色，父节点变黑，并退出循环
-                    setColor(parentOf(parentOf(x)), RED);         // 情形 3. 祖父节点交红
+                    setColor(parentOf(x), BLACK);                 // 情形 3. 交换祖父节点和父节点颜色，父节点变黑，并因此退出循环
+                    setColor(parentOf(parentOf(x)), RED);         // 情形 3. 祖父节点变红
                     rotateRight(parentOf(parentOf(x)));           // 情形 3. 再以祖父节点右旋，完成
                 }
             } else {
@@ -316,9 +317,11 @@ public class RedBlackTree<K extends Comparable<? super K>> {
     /**
      * From CLR
      *
-     * 删除节点，主要看兄弟节点的颜色，以左子树为例，红黑树的删除情形如下所示：
+     * 删除节点，主要看兄弟节点的颜色，以左子树为例，红黑树的删除情形如下 8 种：
      * <pre>
      * 删除根节点
+     * 删除节点本身为红
+     * 删除节点为黑，有一红子
      * 红兄，必然是黑父，二黑子
      * 红父黑兄二黑子
      * 黑父黑兄二黑子
@@ -343,14 +346,13 @@ public class RedBlackTree<K extends Comparable<? super K>> {
                     x = parentOf(x);                                                   // 情形 2.1 如果原来是红父，退出循环并置黑
                     //                                                                 // 情形 2.2 如果是黑父，则父节点作为新的标记删除节点，不做实际删除，继续下一轮红黑树修复循环
                 } else {                                                               //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    if (colorOf(leftOf(sib)) == RED) {                                 // 情形 3. 黑兄并且其左子为红，需要额外换色旋转，以达到右子为红的结果
+                    if (colorOf(leftOf(sib)) == RED) {                                 // 情形 3. 黑兄并且其左子为红，需要额外换色旋转，这里黑兄红左子的操作比较复杂
                         setColor(leftOf(sib), BLACK);                                  // 情形 3. 黑兄和其红左子交换颜色，左子置黑，红色上溢
                         setColor(sib, RED);                                            // 情形 3. 兄弟节点置黑
                         rotateRight(sib);                                              // 情形 3. 兄弟节点右旋
                         sib = rightOf(parentOf(x));                                    // 情形 3. 原来的红色左侄变黑色兄弟节点，转为情形 4
                     }                                                                  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    setColor(sib, colorOf(parentOf(x)));                               // 情形 4. 这里兄弟右子肯定为红色，可能是情形 3 转变而来，也可能兄弟右子原来就是红的
-                    //                                                                 // 情形 4. 此时将原来父节点的颜色设置给兄弟节点，这样就不会改变原来的路径上的黑色节点数量
+                    setColor(sib, colorOf(parentOf(x)));                               // 情形 4. 将原来父节点的颜色设置给兄弟节点
                     setColor(parentOf(x), BLACK);                                      // 情形 4. 父节点置黑
                     setColor(rightOf(sib), BLACK);                                     // 情形 4. 兄弟节点右子置黑
                     rotateLeft(parentOf(x));                                           // 情形 4. 父节点左旋
