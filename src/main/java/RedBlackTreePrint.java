@@ -26,7 +26,6 @@ public class RedBlackTreePrint {
             return;
         }
 
-        RedBlackTreePrint printer = new RedBlackTreePrint();
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
         String op = args[0];
@@ -35,7 +34,7 @@ public class RedBlackTreePrint {
                 String arg = args[i];
                 int v = Integer.parseInt(arg);
                 tree.insert(v);
-                printer.print(tree, "insert " + v);
+                new RedBlackTreePrint().print(tree, "insert " + v);
             }
         }
 
@@ -44,11 +43,11 @@ public class RedBlackTreePrint {
                 String arg = args[i];
                 int v = Integer.parseInt(arg);
                 tree.insert(v);
-                printer.print(tree, "insert " + v);
+                new RedBlackTreePrint().print(tree, "insert " + v);
             }
             int last = Integer.parseInt(args[length - 1]);
             tree.remove(last);
-            printer.print(tree, "remove " + last);
+            new RedBlackTreePrint().print(tree, "remove " + last);
         }
     }
 
@@ -80,11 +79,11 @@ public class RedBlackTreePrint {
 
     public <K extends Comparable<K>> void print(RedBlackTree<K> tree, String... args) {
         if (tree == null || tree.root == null) {
-            System.out.printf("%15s%n", NIL);
+            System.out.printf("%19s%n", NIL);
             return;
         }
 
-        final int initOffset = 6 * maxWidth(tree.root);
+        final int initOffset = 8 * maxWidth(tree.root);
         traversal(0, initOffset, true, tree.root, null);
 
         maps.forEach((key, list) -> {
@@ -144,7 +143,7 @@ public class RedBlackTreePrint {
         });
 
         System.out.println(String.join(" ", args));
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < initOffset * 2; i++) {
             System.out.print('.');
         }
         System.out.println("\n");
