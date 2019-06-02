@@ -4,66 +4,33 @@ import java.util.*;
  * @author yuweijun
  * @since 2019-05-05
  */
-public class RedBlackTreePrint {
+public class BinaryTreePrint {
 
-    private static final String NIL = "NIL";
+    private static final String NULL = "null";
 
-    /**
-     * <pre>
-     * 可以在网页上使用 JS 动画查看红黑树的操作动画： http://www.4e00.com/algorithms/SplayTree.html
-     * 也可以参考这个文章的红黑树操作截图： http://m.blog.chinaunix.net/uid-26548237-id-3480169.html
-     *
-     * # insert [1, 2, 3, 4, 5]
-     * java RedBlackTreePrint i 1 2 3 4 5
-     *
-     * # remove last element, such as remove 2 from [1, 2, 3, 4, 5]
-     * java RedBlackTreePrint r 1 2 3 4 5 2
-     * </pre>
-     */
     public static void main(String[] args) {
         int length = args.length;
-        if (length < 2) {
+        if (length == 0) {
             return;
         }
 
-        RedBlackTreePrint printer = new RedBlackTreePrint();
-        RedBlackTree<Integer> tree = new RedBlackTree<>();
-
-        String op = args[0];
-        if (op.equalsIgnoreCase("insert") || op.equalsIgnoreCase("i")) {
-            for (int i = 1; i < length; i++) {
-                String arg = args[i];
-                int v = Integer.parseInt(arg);
-                tree.insert(v);
-                printer.print(tree, "insert " + v);
-            }
-        }
-
-        if (op.equalsIgnoreCase("remove") || op.equalsIgnoreCase("r")) {
-            for (int i = 1; i < length - 1; i++) {
-                String arg = args[i];
-                int v = Integer.parseInt(arg);
-                tree.insert(v);
-                printer.print(tree, "insert " + v);
-            }
-            int last = Integer.parseInt(args[length - 1]);
-            tree.remove(last);
-            printer.print(tree, "remove " + last);
-        }
+        BinaryTreeCodec codec = new BinaryTreeCodec();
+        TreeNode root = codec.deserialize(args[0]);
+        new BinaryTreePrint().print(root);
     }
 
-    static final class RedBlackNodeInfo {
+    static final class BinaryTreeNodeInfo {
 
         boolean isLeft;
         int column;
         int offsetLeft;
         int offsetRight;
         String text;
-        RedBlackNodeInfo parent;
-        RedBlackNodeInfo left;
-        RedBlackNodeInfo right;
+        BinaryTreeNodeInfo parent;
+        BinaryTreeNodeInfo left;
+        BinaryTreeNodeInfo right;
 
-        RedBlackNodeInfo(boolean isLeft, RedBlackNodeInfo parent) {
+        BinaryTreeNodeInfo(boolean isLeft, BinaryTreeNodeInfo parent) {
             this.isLeft = isLeft;
             this.parent = parent;
             if (parent != null) {
@@ -76,30 +43,29 @@ public class RedBlackTreePrint {
         }
     }
 
-    private Map<Integer, List<RedBlackNodeInfo>> maps = new HashMap<>();
+    private Map<Integer, List<BinaryTreeNodeInfo>> maps = new HashMap<>();
 
-    public <K extends Comparable<K>> void print(RedBlackTree<K> tree, String... args) {
-        if (tree == null || tree.root == null) {
-            System.out.printf("%15s%n", NIL);
+    public void print(TreeNode root) {
+        if (root == null) {
+            System.out.printf("%15s%n", NULL);
             return;
         }
 
-        final int initOffset = 6 * maxWidth(tree.root);
-        traversal(0, initOffset, true, tree.root, null);
-
+        final int initOffset = 6 * maxWidth(root);
+        traversal(0, initOffset, true, root, null);
         maps.forEach((key, list) -> {
             int position = 0;
-            for (RedBlackNodeInfo info : list) {
+            for (BinaryTreeNodeInfo info : list) {
                 if (info.text != null) {
                     while (position < info.offsetLeft) {
                         position = updateCursorPosition(position, ' ');
                     }
-                    if (NIL.equals(info.text)) {
+                    if (NULL.equals(info.text)) {
                         for (int i = 0; i < info.column; i++) {
                             position = updateCursorPosition(position, ' ');
                         }
                     } else {
-                        if (NIL.equals(info.left.text) && NIL.equals(info.right.text)) {
+                        if (NULL.equals(info.left.text) && NULL.equals(info.right.text)) {
                             position = updateCursorPosition(position, ' ');
                             for (int i = 1; i < info.column; i++) {
                                 position = updateCursorPosition(position, ' ');
@@ -112,15 +78,15 @@ public class RedBlackTreePrint {
                         }
                     }
 
-                    if (NIL.equals(info.text)) {
+                    if (NULL.equals(info.text)) {
                         // 如果左右子都是 NULL，就不用输出空节点
                         if (info.isLeft) {
-                            if (!NIL.equals(info.parent.right.text)) {
+                            if (!NULL.equals(info.parent.right.text)) {
                                 System.out.print(info.text);
                                 position += info.text.length();
                             }
                         } else {
-                            if (!NIL.equals(info.parent.left.text)) {
+                            if (!NULL.equals(info.parent.left.text)) {
                                 System.out.print(info.text);
                                 position += info.text.length();
                             }
@@ -130,8 +96,8 @@ public class RedBlackTreePrint {
                         position += info.text.length();
                     }
 
-                    if (!NIL.equals(info.text)) {
-                        if (!NIL.equals(info.left.text) || !NIL.equals(info.right.text)) {
+                    if (!NULL.equals(info.text)) {
+                        if (!NULL.equals(info.left.text) || !NULL.equals(info.right.text)) {
                             for (int i = 1; i < info.column; i++) {
                                 position = updateCursorPosition(position, '─');
                             }
@@ -143,23 +109,25 @@ public class RedBlackTreePrint {
             System.out.println();
         });
 
-        System.out.println(String.join(" ", args));
         for (int i = 0; i < 200; i++) {
             System.out.print('.');
         }
         System.out.println("\n");
     }
 
-    private <K extends Comparable<K>> int maxWidth(RedBlackTree.Node<K> root) {
+    /**
+     * null 节点也算一个宽度
+     */
+    private int maxWidth(TreeNode root) {
         if (root == null) return 0;
-        Deque<RedBlackTree.Node> deque = new LinkedList<>();
+        Deque<TreeNode> deque = new LinkedList<>();
         deque.offer(root);
         int max = 1;
         while (!deque.isEmpty()) {
-            Deque<RedBlackTree.Node> next = new LinkedList<>();
+            Deque<TreeNode> next = new LinkedList<>();
             int size = 0;
             while (!deque.isEmpty()) {
-                RedBlackTree.Node node = deque.poll();
+                TreeNode node = deque.poll();
                 if (node.left != null) {
                     size++;
                     next.offer(node.left);
@@ -173,10 +141,9 @@ public class RedBlackTreePrint {
                     size++;
                 }
             }
+
             if (size > max) {
                 max = size;
-                // next.stream().forEach(node -> System.out.printf("%-4d ", node.val));
-                // System.out.println();
             }
             deque = next;
         }
@@ -184,14 +151,14 @@ public class RedBlackTreePrint {
         return max;
     }
 
-    private <K extends Comparable<K>> void traversal(int row, int column, boolean left, RedBlackTree.Node<K> node, RedBlackNodeInfo parent) {
-        List<RedBlackNodeInfo> list = maps.computeIfAbsent(row, ArrayList::new);
+    private void traversal(int row, int column, boolean left, TreeNode node, BinaryTreeNodeInfo parent) {
+        List<BinaryTreeNodeInfo> list = maps.computeIfAbsent(row, ArrayList::new);
 
         if (node == null) {
-            RedBlackNodeInfo info = new RedBlackNodeInfo(left, parent);
+            BinaryTreeNodeInfo info = new BinaryTreeNodeInfo(left, parent);
             info.column = column / 2;
             if (parent != null) {
-                info.text = NIL;
+                info.text = NULL;
                 list.add(info);
 
                 updateInfoOffset(left, info, parent);
@@ -199,14 +166,13 @@ public class RedBlackTreePrint {
                 traversal(row + 1, info.column, false, null, null);
             }
         } else {
-            RedBlackTree.Node<K> leftNode = node.left;
-            RedBlackTree.Node<K> rightNode = node.right;
-            boolean color = node.color;
-            K key = node.key;
+            TreeNode leftNode = node.left;
+            TreeNode rightNode = node.right;
+            int key = node.val;
 
             if (parent == null) {
-                RedBlackNodeInfo root = new RedBlackNodeInfo(left, null);
-                String text = String.format("B%s", key);
+                BinaryTreeNodeInfo root = new BinaryTreeNodeInfo(left, null);
+                String text = String.format("%d", key);
                 root.text = text;
                 root.parent = root;
                 root.column = column / 2;
@@ -217,8 +183,8 @@ public class RedBlackTreePrint {
                 traversal(row + 1, root.column, true, leftNode, root);
                 traversal(row + 1, root.column, false, rightNode, root);
             } else {
-                RedBlackNodeInfo info = new RedBlackNodeInfo(left, parent);
-                info.text = String.format("%s%s", color ? "B" : "R", key);
+                BinaryTreeNodeInfo info = new BinaryTreeNodeInfo(left, parent);
+                info.text = String.format("%d", key);
                 info.column = column / 2;
                 list.add(info);
                 updateInfoOffset(left, info, parent);
@@ -229,7 +195,7 @@ public class RedBlackTreePrint {
         }
     }
 
-    private void updateInfoOffset(boolean left, RedBlackNodeInfo info, RedBlackNodeInfo parent) {
+    private void updateInfoOffset(boolean left, BinaryTreeNodeInfo info, BinaryTreeNodeInfo parent) {
         if (left) {
             info.offsetLeft = parent.offsetLeft - info.column;
             info.offsetRight = parent.offsetLeft + info.column + info.text.length() - 1; // 右节点显示位置左移一个字符
@@ -246,3 +212,4 @@ public class RedBlackTreePrint {
     }
 
 }
+
