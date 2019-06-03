@@ -29,7 +29,6 @@ public class RedBlackTreePrint {
             return;
         }
 
-        RedBlackTreePrint printer = new RedBlackTreePrint();
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
         String op = args[0];
@@ -38,6 +37,7 @@ public class RedBlackTreePrint {
                 String arg = args[i];
                 int v = Integer.parseInt(arg);
                 tree.insert(v);
+                RedBlackTreePrint printer = new RedBlackTreePrint();
                 printer.print(tree, "insert " + v);
             }
         }
@@ -47,10 +47,13 @@ public class RedBlackTreePrint {
                 String arg = args[i];
                 int v = Integer.parseInt(arg);
                 tree.insert(v);
+                RedBlackTreePrint printer = new RedBlackTreePrint();
                 printer.print(tree, "insert " + v);
             }
+
             int last = Integer.parseInt(args[length - 1]);
             tree.remove(last);
+            RedBlackTreePrint printer = new RedBlackTreePrint();
             printer.print(tree, "remove " + last);
         }
     }
