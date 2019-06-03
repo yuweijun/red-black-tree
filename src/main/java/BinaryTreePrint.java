@@ -6,7 +6,7 @@ import java.util.*;
  */
 public class BinaryTreePrint {
 
-    private static final String NULL = "null";
+    private static final String NULL = "N";
 
     public static void main(String[] args) {
         int length = args.length;
@@ -45,13 +45,24 @@ public class BinaryTreePrint {
 
     private Map<Integer, List<BinaryTreeNodeInfo>> maps = new HashMap<>();
 
+    private int depth(TreeNode root) {
+        if (root == null) return 0;
+        return 1 + Math.max(depth(root.left), depth(root.right));
+    }
+
     public void print(TreeNode root) {
         if (root == null) {
-            System.out.printf("%15s%n", NULL);
+            System.out.printf("%s%n", NULL);
             return;
         }
 
-        final int initOffset = 6 * maxWidth(root);
+        int depth = depth(root);
+        int width = 1;
+        while (depth-- > 1) {
+            width *= 2;
+        }
+
+        final int initOffset = width * (width > 0xFF ? 2 : 4);
         traversal(0, initOffset, true, root, null);
         maps.forEach((key, list) -> {
             int position = 0;
@@ -66,8 +77,7 @@ public class BinaryTreePrint {
                         }
                     } else {
                         if (NULL.equals(info.left.text) && NULL.equals(info.right.text)) {
-                            position = updateCursorPosition(position, ' ');
-                            for (int i = 1; i < info.column; i++) {
+                            for (int i = 0; i < info.column; i++) {
                                 position = updateCursorPosition(position, ' ');
                             }
                         } else {
@@ -109,7 +119,7 @@ public class BinaryTreePrint {
             System.out.println();
         });
 
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < initOffset * 2; i++) {
             System.out.print('.');
         }
         System.out.println("\n");

@@ -1,4 +1,7 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author yuweijun
@@ -26,6 +29,7 @@ public class RedBlackTreePrint {
             return;
         }
 
+        RedBlackTreePrint printer = new RedBlackTreePrint();
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
         String op = args[0];
@@ -34,7 +38,7 @@ public class RedBlackTreePrint {
                 String arg = args[i];
                 int v = Integer.parseInt(arg);
                 tree.insert(v);
-                new RedBlackTreePrint().print(tree, "insert " + v);
+                printer.print(tree, "insert " + v);
             }
         }
 
@@ -43,11 +47,11 @@ public class RedBlackTreePrint {
                 String arg = args[i];
                 int v = Integer.parseInt(arg);
                 tree.insert(v);
-                new RedBlackTreePrint().print(tree, "insert " + v);
+                printer.print(tree, "insert " + v);
             }
             int last = Integer.parseInt(args[length - 1]);
             tree.remove(last);
-            new RedBlackTreePrint().print(tree, "remove " + last);
+            printer.print(tree, "remove " + last);
         }
     }
 
@@ -79,11 +83,17 @@ public class RedBlackTreePrint {
 
     public <K extends Comparable<K>> void print(RedBlackTree<K> tree, String... args) {
         if (tree == null || tree.root == null) {
-            System.out.printf("%19s%n", NIL);
+            System.out.printf("%s%n", NIL);
             return;
         }
 
-        final int initOffset = 8 * maxWidth(tree.root);
+        int depth = depth(tree.root);
+        int width = 1;
+        while (depth-- > 1) {
+            width *= 2;
+        }
+
+        final int initOffset = width * (width > 0xFF ? 2 : 4);
         traversal(0, initOffset, true, tree.root, null);
 
         maps.forEach((key, list) -> {
@@ -99,8 +109,7 @@ public class RedBlackTreePrint {
                         }
                     } else {
                         if (NIL.equals(info.left.text) && NIL.equals(info.right.text)) {
-                            position = updateCursorPosition(position, ' ');
-                            for (int i = 1; i < info.column; i++) {
+                            for (int i = 0; i < info.column; i++) {
                                 position = updateCursorPosition(position, ' ');
                             }
                         } else {
@@ -149,38 +158,9 @@ public class RedBlackTreePrint {
         System.out.println("\n");
     }
 
-    private <K extends Comparable<K>> int maxWidth(RedBlackTree.Node<K> root) {
+    private int depth(RedBlackTree.Node root) {
         if (root == null) return 0;
-        Deque<RedBlackTree.Node> deque = new LinkedList<>();
-        deque.offer(root);
-        int max = 1;
-        while (!deque.isEmpty()) {
-            Deque<RedBlackTree.Node> next = new LinkedList<>();
-            int size = 0;
-            while (!deque.isEmpty()) {
-                RedBlackTree.Node node = deque.poll();
-                if (node.left != null) {
-                    size++;
-                    next.offer(node.left);
-                } else {
-                    size++;
-                }
-                if (node.right != null) {
-                    size++;
-                    next.offer(node.right);
-                } else {
-                    size++;
-                }
-            }
-            if (size > max) {
-                max = size;
-                // next.stream().forEach(node -> System.out.printf("%-4d ", node.val));
-                // System.out.println();
-            }
-            deque = next;
-        }
-
-        return max;
+        return 1 + Math.max(depth(root.left), depth(root.right));
     }
 
     private <K extends Comparable<K>> void traversal(int row, int column, boolean left, RedBlackTree.Node<K> node, RedBlackNodeInfo parent) {
